@@ -48,3 +48,15 @@ db.users.aggregate([
     $limit: 5, // Limit the list to 5, as we need the top 5
   },
 ]);
+
+/* --------------- Question 4: Find the total number of males and females --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: "$gender",
+      genderCount: {
+        $sum: 1,
+      },
+    },
+  },
+]);
