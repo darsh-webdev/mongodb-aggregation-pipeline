@@ -53,10 +53,39 @@ db.users.aggregate([
 db.users.aggregate([
   {
     $group: {
-      _id: "$gender",
+      _id: "$gender", // Groups all the documents into groups based on the gender
       genderCount: {
-        $sum: 1,
+        $sum: 1, // Calculate the sum of each gender count
       },
+    },
+  },
+]);
+
+/* --------------- Question 5: Which country has the highest number of registered users? --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: "$company.location.country", // Groups all the documents based on different countries
+      usersCount: {
+        $sum: 1, // Calculate the sum of users in each country
+      },
+    },
+  },
+  {
+    $sort: {
+      usersCount: -1, // Sort the documents in descending order ( $sort key ordering must be 1 (for ascending) or -1 (for descending))
+    },
+  },
+  {
+    $limit: 1, // Limit the list to 1, as we need the country with the highest number of users
+  },
+]);
+
+/* --------------- Question 6: List all unique eye colors present in the collection --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: "$eyeColor", // Group all documents based on the eye color
     },
   },
 ]);
