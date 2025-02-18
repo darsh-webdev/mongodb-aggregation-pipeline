@@ -89,3 +89,50 @@ db.users.aggregate([
     },
   },
 ]);
+
+/* --------------- Question 7: What is the average number of tags per user? --------------- */
+// Solution 1: Using unwind method
+db.users.aggregate([
+  {
+    $unwind: "$tags", // Deconstruct the tags array, creating a new document for each tag in the array. (for each tag in the array, user will have multiple entries in the pipeline, one for each tag.)
+  },
+  {
+    $group: {
+      _id: "$_id", // group the documents back by the user's _id.
+      numberOfTags: {
+        $sum: 1, // count the number of times each _id appears, which gives us the number of tags each user has.
+      },
+    },
+  },
+  {
+    $group: {
+      _id: null, // group all users into a single group
+      averageNumberOfTags: {
+        $avg: "$numberOfTags", // Calulate the average number of tags based on the above grouped document
+      },
+    },
+  },
+]);
+
+// Solution 2: Using addFields method
+db.users.aggregate([
+  {
+    // Add a new field (numberOfTags)
+    $addFields: {
+      numberOfTags: {
+        // Counts the number of elements in the tags array and stores it in a new field numberOfTags.
+        $size: {
+          $ifNull: ["$tags", []], // If the tags field is null or missing, it replaces it with an empty array [] to prevent errors.
+        },
+      },
+    },
+  },
+  {
+    $group: {
+      _id: null, // group all users into a single group
+      averageNumberOfTags: {
+        $avg: { $ifNull: ["$numberOfTags", 0] }, // Calulate the average number of tags based on the above grouped document (If numberOfTags is null, it is replaced with 0 to avoid errors.)
+      },
+    },
+  },
+]);
