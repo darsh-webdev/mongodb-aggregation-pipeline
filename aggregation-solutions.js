@@ -136,3 +136,49 @@ db.users.aggregate([
     },
   },
 ]);
+
+/* --------------- Question 8: How many users have 'enim' as one of their tags? --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      tags: "enim", // Filter out the users that have 'enim' as one of their tags
+    },
+  },
+  {
+    $count: "usersWithEnimTag", // Count the number of documents from stage 1
+  },
+]);
+
+/* --------------- Question 9: What are the names and age of users who are inactive and have 'velit' as a tag --------------- */
+db.users.aggregate([
+  // Stage 1: Filter out the users that are inActive and have 'velit' as one of their tags
+  {
+    $match: {
+      isActive: false,
+      tags: "velit",
+    },
+  },
+  // Stage 2: Send only the required fields as response (name and age in this case)
+  {
+    $project: {
+      name: 1,
+      age: 1,
+    },
+  },
+]);
+
+/* --------------- Question 10: How many users have a phone number starting with '+1 (940)'? --------------- */
+db.users.aggregate([
+  // Stage 1: Filter out the users whose phone number starts with '+1 (940)' using regex
+  {
+    $match: {
+      "company.phone": {
+        $regex: /^\+1 \(940\)/,
+      },
+    },
+  },
+  // Stage 2: Count the no of user docs from stage 1
+  {
+    $count: "usersWithFilteredPhoneNumber",
+  },
+]);
