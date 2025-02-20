@@ -182,3 +182,61 @@ db.users.aggregate([
     $count: "usersWithFilteredPhoneNumber",
   },
 ]);
+
+/* --------------- Question 11: Who has registered the most recently (Limit to 4) ? --------------- */
+db.users.aggregate([
+  {
+    $sort: {
+      registered: -1, // Sort by the most recently registered in descending order
+    },
+  },
+  {
+    $limit: 4, // Limit the list of users to 4
+  },
+]);
+
+/* --------------- Question 12: Categorize users by their favorite fruit  --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: "$favoriteFruit", // Group documents based on favorite fruit
+      users: { $push: "$name" }, // This will create a new users array that will store the names of the users
+    },
+  },
+]);
+
+/* --------------- Question 13: How many users have 'ad' as teh second tag in their list of tags? --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      "tags.1": "ad", // Match only those documents that have second tag as "ad"
+    },
+  },
+  {
+    $count: "usersWithSecondTagAsAd", // Count the number of documents from stage 1
+  },
+]);
+
+/* --------------- Question 14: Find users who have both "enim" and "id" as their tags --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      tags: { $all: ["enim", "id"] }, // Using "$all" operator we can specify an array with multiple vlues to match with
+    },
+  },
+]);
+
+/* --------------- Question 15: List all companies located in the USA with their corresponding user count --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      "company.location.country": "USA", // Match only the companies that are located in the USA
+    },
+  },
+  {
+    $group: {
+      _id: "$company.title", // Group the documents from stage 1 using the company name
+      userCount: { $sum: 1 }, // Count the number of users for each company
+    },
+  },
+]);
