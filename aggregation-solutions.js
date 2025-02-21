@@ -240,3 +240,60 @@ db.users.aggregate([
     },
   },
 ]);
+
+/* --------------- Question 16: Find the company with the most employees (users working at the same company title) --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: "$company.title", // Group the documents from stage 1 using the company name
+      userCount: {
+        $sum: 1, // Count the number of users for each company
+      },
+    },
+  },
+  {
+    $sort: {
+      userCount: -1, // Sort the documents in descending order
+    },
+  },
+  {
+    $limit: 1, // Limit the number of documents to 1 as we need the company with the most employees
+  },
+]);
+
+/* --------------- Question 17: Count the number of users registered per year --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: { $year: "$registered" }, // Extracts the year from the registered date
+      usersRegistered: {
+        $sum: 1, // Counts the number of users for each year
+      },
+    },
+  },
+  {
+    $sort: {
+      _id: 1, // Sorts results by year in ascending order
+    },
+  },
+]);
+
+/* --------------- Question 18: Find the month with the highest number of user registrations --------------- */
+db.users.aggregate([
+  {
+    $group: {
+      _id: { $month: "$registered" }, // Extracts the month from the registered date
+      registeredUsers: {
+        $sum: 1,  // Counts the number of users for each month
+      },
+    },
+  },
+  {
+    $sort: {
+      registeredUsers: -1,
+    },
+  },
+  {
+    $limit: 1,
+  },
+]);
