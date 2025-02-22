@@ -284,7 +284,7 @@ db.users.aggregate([
     $group: {
       _id: { $month: "$registered" }, // Extracts the month from the registered date
       registeredUsers: {
-        $sum: 1,  // Counts the number of users for each month
+        $sum: 1, // Counts the number of users for each month
       },
     },
   },
@@ -295,5 +295,76 @@ db.users.aggregate([
   },
   {
     $limit: 1,
+  },
+]);
+
+/* --------------- Question 19: Find the most common tag among all users --------------- */
+db.users.aggregate([
+  {
+    $unwind: {
+      path: "$tags", // Deconstruct the tags array, creating a new document for each tag in the array. (for each tag in the array, user will have multiple entries in the pipeline, one for each tag.)
+    },
+  },
+  {
+    $group: {
+      _id: "$tags", // Group all documents by tags
+      tagCount: {
+        $sum: 1, // Count the occurrences of each tag
+      },
+    },
+  },
+  {
+    $sort: {
+      tagCount: -1, // Sort tags in descending order based on their count.
+    },
+  },
+  {
+    $limit: 1, // Return only the most frequently occurring tag
+  },
+]);
+
+/* --------------- Question 20: Find the user with the maximum number of tags --------------- */
+db.users.aggregate([
+  {
+    // Add a new field (numberOfTags)
+    $addFields: {
+      // Counts the number of elements in the tags array and stores it in a new field numberOfTags.
+      numberOfTags: {
+        $size: { $ifNull: ["$tags", []] }, // If the tags field is null or missing, it replaces it with an empty array [] to prevent errors.
+      },
+    },
+  },
+  {
+    $sort: {
+      numberOfTags: -1, // Sort the tags count in descending order.
+    },
+  },
+  {
+    $limit: 1, // Return only the user with the most number of tags
+  },
+]);
+
+/* --------------- Question 21: Find the most popular eye color among users whose favorite fruit is 'banana' --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      favoriteFruit: "banana", // Match all the users whose favorite fruit is 'banana'
+    },
+  },
+  {
+    $group: {
+      _id: "$eyeColor", // Group all the users based on their eye color
+      userCount: {
+        $sum: 1, // Count the number of users that have a specific eye color
+      },
+    },
+  },
+  {
+    $sort: {
+      userCount: -1, // Sort the number of users that have a specific eye color in descending order
+    },
+  },
+  {
+    $limit: 1, // Return only the eye color that has the maximum count
   },
 ]);
