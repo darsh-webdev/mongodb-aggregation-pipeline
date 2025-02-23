@@ -368,3 +368,47 @@ db.users.aggregate([
     $limit: 1, // Return only the eye color that has the maximum count
   },
 ]);
+
+/* --------------- Question 22: Find the top 3 countries with the highest number of male users --------------- */
+db.users.aggregate([
+  {
+    $match: {
+      gender: "male", // Match all the users whose gender is male
+    },
+  },
+  {
+    $group: {
+      _id: "$company.location.country", // Group all the users based on their country
+      userCount: {
+        $sum: 1, // Count the number of users for each country
+      },
+    },
+  },
+  {
+    $sort: {
+      userCount: -1, // Sort the documents in descending order
+    },
+  },
+  {
+    $limit: 3, // Return only 3 results as only top 3 are required.
+  },
+]);
+
+/* --------------- Question 23: Find the average age of female users in the USA --------------- */
+db.users.aggregate([
+  {
+    // Match all users with gender "female" and company based in the USA
+    $match: {
+      gender: "female",
+      "company.location.country": "USA",
+    },
+  },
+  {
+    $group: {
+      _id: null, // Group all the documents together into a single document
+      averageAge: {
+        $avg: "$age", // Calulate the average age based on the above grouped document
+      },
+    },
+  },
+]);
